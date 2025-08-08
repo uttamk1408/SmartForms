@@ -38,6 +38,46 @@ function App() {
     setDroppedFields((prev) => prev.filter((field) => field.id !== id));
   };
 
+  const generateHTMLForm = () => {
+    const html = `
+    <form>
+      ${droppedFields.map(field => {
+      if (field.type === 'text') {
+        return `<label>${field.label || ''}</label><input type="text" name="${field.name || ''}" />`;
+      }
+      if (field.type === 'select') {
+        return `
+            <label>${field.label || ''}</label>
+            <select name="${field.name || ''}">
+              ${(field.options || []).map(opt => `<option value="${opt}">${opt}</option>`).join('')}
+            </select>
+          `;
+      }
+      if (field.type === 'checkbox') {
+        return `<label><input type="checkbox" name="${field.name || ''}" /> ${field.label || ''}</label>`;
+      }
+      if (field.type === 'radio') {
+        return `
+            <label>${field.label || ''}</label>
+            ${(field.options || []).map(opt => `<label><input type="radio" name="${field.name || ''}" value="${opt}" /> ${opt}</label>`).join('')}
+          `;
+      }
+      if (field.type === 'textarea') {
+        return `<label>${field.label || ''}</label><textarea name="${field.name || ''}"></textarea>`;
+      }
+      return '';
+    }).join('<br/>')}
+    </form>
+  `;
+
+    // Download HTML file
+    const blob = new Blob([html], { type: 'text/html' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = 'form.html';
+    link.click();
+  };
+
   return (
     <DndContext onDragEnd={handleDragEnd}>
       <div style={{ display: 'flex', padding: '20px', gap: '40px' }}>
@@ -60,6 +100,10 @@ function App() {
             onClose={() => setShowModal(false)}
           />
         )}
+      </div>
+
+      <div style={{ marginTop: '20px' }}>
+        <button onClick={generateHTMLForm}>Create Form</button>
       </div>
     </DndContext>
   );
